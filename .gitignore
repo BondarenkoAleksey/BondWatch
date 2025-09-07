@@ -38,3 +38,6 @@ htmlcov/
 # Local config
 *.log
 *.sqlite3
+
+# SQLite database
+*.db
