@@ -45,4 +45,12 @@
 1. Установить зависимости:
    ```bash
    pip install -r requirements.txt
-
+2. Применить миграции:
+   ```bash
+   alembic upgrade head
+3. Запустить сервер:
+   ```bash
+   uvicorn app.main:app --reload
+4. Документация доступна по адресу:
+   ```bash
+   http://127.0.0.1:8000/docs
