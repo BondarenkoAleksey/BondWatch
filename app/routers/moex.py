@@ -6,6 +6,7 @@ router = APIRouter(prefix="/moex", tags=["MOEX"])
 
 @router.get("/bonds/{isin}", response_model=MoexBond)
 async def get_moex_bond(isin: str):
+
     """
     Fetch bond information from MOEX by ISIN.
 
@@ -22,6 +23,7 @@ async def get_moex_bond(isin: str):
 
     If bond is not found on MOEX, returns 404 Not Found.
     """
+
     data = await get_bond_info(isin)
     if not data:
         raise HTTPException(status_code=404, detail="Bond not found on MOEX")

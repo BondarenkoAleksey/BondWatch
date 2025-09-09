@@ -1,12 +1,12 @@
 import httpx
 from typing import Dict, Optional
-
 from fastapi import HTTPException
 
 BASE_URL = "https://iss.moex.com/iss"
 
 async def get_bond_info(isin: str) -> Optional[dict]:
     url = f"https://iss.moex.com/iss/securities/{isin}.json"
+
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
