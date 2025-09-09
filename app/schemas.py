@@ -42,8 +42,8 @@ class Coupon(BaseModel):
 
     class Config:
         from_attributes = True
-        fields = {'value': 'COUPONVALUE',
-                  'valueprc': 'COUPONPERCENT'}
+        fields = { 'value': 'COUPONVALUE',
+                   'valueprc': 'COUPONPERCENT' }
 
 
 class BondWithCoupons(MoexBond):
