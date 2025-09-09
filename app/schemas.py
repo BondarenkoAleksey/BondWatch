@@ -17,13 +17,10 @@ class BondRead(BaseModel):
 
     model_config = {"from_attributes": True}
 
-from pydantic import BaseModel
-from typing import Optional
-
 class MoexBond(BaseModel):
     isin: str
     secid: str
-    shortname: str
+    shortname: Optional[str]
     matdate: Optional[str]      # дата погашения
     facevalue: Optional[float]  # текущий номинал
     initial_facevalue: Optional[float]  # изначальный номинал
