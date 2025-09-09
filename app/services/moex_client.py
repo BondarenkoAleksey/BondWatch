@@ -1,5 +1,6 @@
 import httpx
 from typing import Dict, Optional
+
 from fastapi import HTTPException
 
 BASE_URL = "https://iss.moex.com/iss"
