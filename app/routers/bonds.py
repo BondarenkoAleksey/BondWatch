@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import crud, schemas, models
 from app.database import SessionLocal
+from app.models import Bond
+from app.schemas import MoexBond
 
 router = APIRouter(prefix="/bonds", tags=["bonds"])
 
@@ -38,3 +40,21 @@ def patch_bond(isin: str, bond_update: schemas.BondUpdate, db: Session = Depends
     if not db_bond:
         raise HTTPException(status_code=404, detail="Bond not found")
     return crud.update_bond(db, db_bond, bond_update)
+
+def upsert_bond(db: Session, bond_data: MoexBond) -> Bond:
+    """
+    Insert or update bond in the database by ISIN.
+    """
+    db_bond = db.query(Bond).filter(Bond.isin == bond_data.isin).first()
+    if db_bond:
+        # update existing
+        for field, value in bond_data.dict().items():
+            setattr(db_bond, field, value)
+    else:
+        # create new
+        db_bond = Bond(**bond_data.dict())
+        db.add(db_bond)
+
+    db.commit()
+    db.refresh(db_bond)
+    return db_bond
