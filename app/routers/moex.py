@@ -7,7 +7,7 @@ from app import crud
 from app.crud import create_coupons, upsert_bond
 from app.models import CouponSchedule, Bond
 from app.routers.bonds import get_db
-from app.schemas import MoexBond, Coupon
+from app.schemas import MoexBond, Coupon, BondWithCoupons
 from app.services.moex_client import get_bond_info, get_coupon_schedule
 
 router = APIRouter(prefix="/moex", tags=["MOEX"])
@@ -50,7 +50,7 @@ async def get_moex_bond(isin: str):
     )
 
 
-@router.post("/bonds/{isin}/sync")
+@router.post("/bonds/{isin}/sync", response_model=BondWithCoupons)
 async def sync_moex_bond(isin: str, db: Session = Depends(get_db)):
     """
     Sync bond and coupon schedule from MOEX into local database.
@@ -59,6 +59,7 @@ async def sync_moex_bond(isin: str, db: Session = Depends(get_db)):
     if not data:
         raise HTTPException(status_code=404, detail="Bond not found")
 
+    # Сохраняем облигацию
     bond_schema = MoexBond(
         isin=data.get("ISIN"),
         secid=data.get("SECID"),
@@ -70,22 +71,29 @@ async def sync_moex_bond(isin: str, db: Session = Depends(get_db)):
         coupon_value=data.get("COUPONVALUE"),
         coupon_date=data.get("COUPONDATE"),
     )
-
-    # Insert or update bond
     db_bond = upsert_bond(db, bond_schema)
 
-    # Insert coupon schedule
+    # Получаем купоны из MOEX
     coupon_list = await get_coupon_schedule(isin, db_bond.id)
-    create_coupons(db, [
-        CouponSchedule(
+
+    # Создаём записи в базе
+    for c in coupon_list:
+        db.add(CouponSchedule(
             bond_id=c.bond_id,
             coupon_date=c.coupon_date,
             value=c.value,
             valueprc=c.valueprc
-        ) for c in coupon_list
-    ])
+        ))
+    db.commit()
+    db.refresh(db_bond)  # Важно: подгружаем отношения
 
-    return db_bond
+    # Формируем Pydantic объект с купонами
+    bond_with_coupons = BondWithCoupons(
+        **db_bond.__dict__,
+        coupons=db_bond.coupons
+    )
+
+    return bond_with_coupons
 
 
 @router.get("/bonds/{isin}/coupons", response_model=List[Coupon])

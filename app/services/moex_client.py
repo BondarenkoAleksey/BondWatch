@@ -1,6 +1,7 @@
-import httpx
+from datetime import datetime
 from typing import List, Optional
 
+import httpx
 from fastapi import HTTPException
 
 from app.schemas import Coupon
@@ -30,26 +31,39 @@ async def get_bond_info(isin: str) -> Optional[dict]:
     return {row[0]: row[2] for row in rows}
 
 
-async def get_coupon_schedule(isin: str, bond_id: int) -> List[Coupon]:
+async def get_coupon_schedule(isin: str, bond_id: int) -> list[Coupon]:
+    """
+    Получаем купоны облигации с MOEX и возвращаем список Pydantic моделей Coupon.
+    """
+    import httpx
+
     url = f"https://iss.moex.com/iss/securities/{isin}/bondization.json"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
+        response.raise_for_status()
+        data = response.json()
 
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            response.raise_for_status()
-    except httpx.HTTPStatusError as e:
-        if e.response.status_code == 404:
-            return []
-        raise HTTPException(status_code=502, detail="MOEX API error") from e
-    except httpx.RequestError:
-        raise HTTPException(status_code=502, detail="Network error")
+    coupons_data = data.get("coupons", {}).get("data", [])
+    coupons_columns = data.get("coupons", {}).get("columns", [])
 
-    data = response.json()
-    rows = data.get("coupons", {}).get("data", [])
-    columns = data.get("coupons", {}).get("columns", [])
+    # Найдем индексы нужных полей
+    idx_coupon_date = coupons_columns.index("coupondate")
+    idx_value = coupons_columns.index("value")
+    idx_valueprc = coupons_columns.index("valueprc")
 
-    if not rows:
-        return []
+    coupons = []
+    for row in coupons_data:
+        # Преобразуем дату из строки в datetime.date
+        raw_date = row[idx_coupon_date]
+        coupon_date = datetime.strptime(raw_date, "%Y-%m-%d").date() if raw_date else None
 
-    coupons = [dict(zip(columns, row)) for row in rows]
-    return [Coupon(**c, bond_id=bond_id) for c in coupons]
+        coupons.append(
+            Coupon(
+                bond_id=bond_id,
+                value=row[idx_value],
+                valueprc=row[idx_valueprc],
+                coupon_date=coupon_date
+            )
+        )
+
+    return coupons

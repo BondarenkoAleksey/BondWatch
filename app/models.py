@@ -6,7 +6,7 @@ from app.database import Base
 class Bond(Base):
     __tablename__ = "bonds"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     isin = Column(String, unique=True, index=True)
     secid = Column(String, index=True)
     shortname = Column(String)
@@ -27,7 +27,7 @@ class CouponSchedule(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     bond_id = Column(Integer, ForeignKey("bonds.id", ondelete="CASCADE"))
-    coupon_date = Column(Date, nullable=False)
+    coupon_date = Column(Date, nullable=True)
     value = Column(Float, nullable=True)
     valueprc = Column(Float, nullable=True)
 
