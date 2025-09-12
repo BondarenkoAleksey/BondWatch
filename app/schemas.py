@@ -37,12 +37,11 @@ class MoexBond(BaseModel):
 class Coupon(BaseModel):
     value: Optional[float] = None
     valueprc: Optional[float] = None
+    coupon_date: Optional[date] = None   # ← добавить
     bond_id: int
 
     class Config:
         from_attributes = True
-        fields = {'value': 'COUPONVALUE',
-                  'valueprc': 'COUPONPERCENT'}
 
 
 class BondWithCoupons(MoexBond):
