@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Date, Integer, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, String, Float, Date, Integer, ForeignKey, UniqueConstraint, Boolean
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -16,6 +16,8 @@ class Bond(Base):
     coupon_percent = Column(Float, nullable=True)
     coupon_value = Column(Float, nullable=True)
     coupon_date = Column(Date, nullable=True)
+    has_offer = Column(Boolean, nullable=True)
+    offer_date = Column(Date, nullable=True)
 
     coupons = relationship("CouponSchedule",
                            back_populates="bond",
