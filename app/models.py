@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Date, Integer, ForeignKey
+from sqlalchemy import Column, String, Float, Date, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -24,6 +24,9 @@ class Bond(Base):
 
 class CouponSchedule(Base):
     __tablename__ = "coupon_schedule"
+    __table_args__ = (
+        UniqueConstraint('bond_id', 'coupon_date', name='uq_coupon_bond_date'),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     bond_id = Column(Integer, ForeignKey("bonds.id", ondelete="CASCADE"))

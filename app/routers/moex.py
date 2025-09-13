@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.crud import create_coupons, upsert_bond
+from app.crud import upsert_bond
 from app.models import CouponSchedule, Bond
 from app.routers.bonds import get_db
 from app.schemas import MoexBond, Coupon, BondWithCoupons
@@ -76,15 +76,9 @@ async def sync_moex_bond(isin: str, db: Session = Depends(get_db)):
     # Получаем купоны из MOEX
     coupon_list = await get_coupon_schedule(isin, db_bond.id)
 
-    # Создаём записи в базе
-    for c in coupon_list:
-        db.add(CouponSchedule(
-            bond_id=c.bond_id,
-            coupon_date=c.coupon_date,
-            value=c.value,
-            valueprc=c.valueprc,
-            currency = c.currency
-        ))
+    # Обновляем/добавляем купоны в базе
+    crud.upsert_coupons(db, coupon_list)
+
     db.commit()
     db.refresh(db_bond)  # Важно: подгружаем отношения
 
