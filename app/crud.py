@@ -1,3 +1,5 @@
+from typing import Iterable, List, Union
+
 from sqlalchemy.orm import Session
 from app import models, schemas
 from app.models import CouponSchedule, Bond
@@ -50,6 +52,101 @@ def upsert_bond(db: Session, bond_data: MoexBond) -> Bond:
     db.commit()
     db.refresh(db_bond)
     return db_bond
+
+def upsert_coupons(db: Session, coupons: Iterable[Union[schemas.Coupon, dict]]) -> List[CouponSchedule]:
+    """
+    Вставляет или обновляет список купонов (bulk upsert-like, but implemented in Python).
+    Принимает и Pydantic объекты (schemas.Coupon) и dict-подобные записи.
+    Возвращает список ORM-объектов CouponSchedule (новых и обновлённых).
+    """
+    coupons = list(coupons)
+    if not coupons:
+        return []
+
+    # Преобразуем вход в удобный список кортежей (bond_id, coupon_date, value, valueprc, currency, original)
+    normalized = []
+    for c in coupons:
+        if isinstance(c, dict):
+            bond_id = c.get("bond_id")
+            coupon_date = c.get("coupon_date")
+            value = c.get("value")
+            valueprc = c.get("valueprc")
+            currency = c.get("currency", None)
+        else:
+            # Pydantic model / ORM-like
+            bond_id = getattr(c, "bond_id", None)
+            coupon_date = getattr(c, "coupon_date", None)
+            value = getattr(c, "value", None)
+            valueprc = getattr(c, "valueprc", None)
+            currency = getattr(c, "currency", None)
+
+        # normalize date-like (if string -> try parse?) — ожидаем уже date или None
+        normalized.append((bond_id, coupon_date, value, valueprc, currency, c))
+
+    # Группируем по bond_id чтобы меньше запросов к БД
+    from collections import defaultdict
+    by_bond = defaultdict(list)
+    for tup in normalized:
+        bond_id = tup[0]
+        by_bond[bond_id].append(tup)
+
+    result: List[CouponSchedule] = []
+
+    for bond_id, rows in by_bond.items():
+        # Список дат, исключая None (sqlite/SQAlchemy .in_() не любит None в списке)
+        non_null_dates = [r[1] for r in rows if r[1] is not None]
+
+        # Получаем существующие купоны для bond_id и дат (если есть)
+        existing = []
+        if non_null_dates:
+            existing = db.query(CouponSchedule).filter(
+                CouponSchedule.bond_id == bond_id,
+                CouponSchedule.coupon_date.in_(non_null_dates)
+            ).all()
+        # map key -> object
+        existing_map = {(e.bond_id, e.coupon_date): e for e in existing}
+
+        to_add: List[CouponSchedule] = []
+
+        for bond_id, coupon_date, value, valueprc, currency, original in rows:
+            key = (bond_id, coupon_date)
+            if key in existing_map:
+                # Обновляем существующий
+                e = existing_map[key]
+                e.value = value
+                e.valueprc = valueprc
+                # поддерживаем поле currency, если он есть в модели
+                if hasattr(e, "currency") and currency is not None:
+                    setattr(e, "currency", currency)
+                result.append(e)
+            else:
+                # Создаём новый объект
+                new = CouponSchedule(
+                    bond_id=bond_id,
+                    coupon_date=coupon_date,
+                    value=value,
+                    valueprc=valueprc
+                )
+                if hasattr(new, "currency") and currency is not None:
+                    setattr(new, "currency", currency)
+                to_add.append(new)
+                result.append(new)
+
+        if to_add:
+            db.add_all(to_add)
+
+    # В конце один коммит (атомарно для всех вставок/обновлений)
+    db.commit()
+
+    # Попытка обновить объекты (refresh) — безопасно пропускаем, если не удалось
+    for obj in result:
+        try:
+            db.refresh(obj)
+        except Exception:
+            # Если объект новый и DB не возвращает поля сразу — ничего страшного
+            pass
+
+    return result
 
 def create_coupons(db: Session, coupons: list[CouponSchedule]):
     for c in coupons:
