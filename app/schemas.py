@@ -18,8 +18,15 @@ class BondRead(BaseModel):
     isin: str
     name: str
     yield_percent: float
+    has_offer: Optional[bool] = False
+    offer_date: Optional[date] = None
 
     model_config = {"from_attributes": True}
+
+
+class BondWithOffer(BondRead):
+    has_offer: bool = False
+    offer_date: Optional[date] = None
 
 
 class MoexBond(BaseModel):
@@ -32,6 +39,8 @@ class MoexBond(BaseModel):
     coupon_percent: Optional[float]
     coupon_value: Optional[float]
     coupon_date: Optional[date]
+    has_offer: Optional[bool] = False
+    offer_date: Optional[date] = None
 
 
 class Coupon(BaseModel):

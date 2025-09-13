@@ -60,6 +60,7 @@ async def sync_moex_bond(isin: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Bond not found")
 
     # Сохраняем облигацию
+    buyback_raw = data.get("BUYBACKDATE")
     bond_schema = MoexBond(
         isin=data.get("ISIN"),
         secid=data.get("SECID"),
@@ -70,6 +71,8 @@ async def sync_moex_bond(isin: str, db: Session = Depends(get_db)):
         coupon_percent=data.get("COUPONPERCENT"),
         coupon_value=data.get("COUPONVALUE"),
         coupon_date=data.get("COUPONDATE"),
+        has_offer=bool(buyback_raw),
+        offer_date=buyback_raw
     )
     db_bond = upsert_bond(db, bond_schema)
 

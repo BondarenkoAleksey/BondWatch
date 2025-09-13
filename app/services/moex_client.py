@@ -9,7 +9,7 @@ from app.schemas import Coupon
 BASE_URL = "https://iss.moex.com/iss"
 
 async def get_bond_info(isin: str) -> Optional[dict]:
-    url = f"https://iss.moex.com/iss/securities/{isin}.json"
+    url = f"{BASE_URL}/securities/{isin}.json"
 
     try:
         async with httpx.AsyncClient() as client:
@@ -27,15 +27,22 @@ async def get_bond_info(isin: str) -> Optional[dict]:
     columns = data.get("description", {}).get("columns", [])
     if not rows:
         return None
+    bond_data = {row[0]: row[2] for row in rows}
 
-    return {row[0]: row[2] for row in rows}
+    # Добавляем поле оферты
+    # buyback_raw = bond_data.get("BUYBACKDATE")
+    # print(buyback_raw)
+    # bond_data["has_offer"] = bool(buyback_raw)
+    # bond_data["offer_date"] = datetime.strptime(buyback_raw, "%Y-%m-%d").date() if buyback_raw else None
+    print(bond_data)
+    return bond_data
 
 
 async def get_coupon_schedule(isin: str, bond_id: int) -> List[Coupon]:
     """
     Получаем купоны облигации с MOEX и возвращаем список Pydantic моделей Coupon.
     """
-    url = f"https://iss.moex.com/iss/securities/{isin}/bondization.json"
+    url = f"{BASE_URL}/securities/{isin}/bondization.json"
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
         response.raise_for_status()
