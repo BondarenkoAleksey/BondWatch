@@ -31,12 +31,10 @@ async def get_bond_info(isin: str) -> Optional[dict]:
     return {row[0]: row[2] for row in rows}
 
 
-async def get_coupon_schedule(isin: str, bond_id: int) -> list[Coupon]:
+async def get_coupon_schedule(isin: str, bond_id: int) -> List[Coupon]:
     """
     Получаем купоны облигации с MOEX и возвращаем список Pydantic моделей Coupon.
     """
-    import httpx
-
     url = f"https://iss.moex.com/iss/securities/{isin}/bondization.json"
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
@@ -46,24 +44,35 @@ async def get_coupon_schedule(isin: str, bond_id: int) -> list[Coupon]:
     coupons_data = data.get("coupons", {}).get("data", [])
     coupons_columns = data.get("coupons", {}).get("columns", [])
 
-    # Найдем индексы нужных полей
-    idx_coupon_date = coupons_columns.index("coupondate")
-    idx_value = coupons_columns.index("value")
-    idx_valueprc = coupons_columns.index("valueprc")
+    # приводим к нижнему регистру, чтобы не зависеть от регистра в API
+    cols = [c.lower() for c in coupons_columns]
+    idx = {c: i for i, c in enumerate(cols)}
 
     coupons = []
     for row in coupons_data:
-        # Преобразуем дату из строки в datetime.date
-        raw_date = row[idx_coupon_date]
+        # coupon_date
+        raw_date = row[idx["coupondate"]] if "coupondate" in idx else None
         coupon_date = datetime.strptime(raw_date, "%Y-%m-%d").date() if raw_date else None
+
+        # value / valueprc
+        value = row[idx["value"]] if "value" in idx else None
+        valueprc = row[idx["valueprc"]] if "valueprc" in idx else None
+
+        # currency: обычно в колонке faceunit
+        currency = None
+        if "faceunit" in idx:
+            currency = row[idx["faceunit"]]
+        elif "currency" in idx:
+            currency = row[idx["currency"]]
 
         coupons.append(
             Coupon(
                 bond_id=bond_id,
-                value=row[idx_value],
-                valueprc=row[idx_valueprc],
-                coupon_date=coupon_date
+                value=value,
+                valueprc=valueprc,
+                coupon_date=coupon_date,
+                currency=currency
             )
         )
-
+    # print(coupons)
     return coupons

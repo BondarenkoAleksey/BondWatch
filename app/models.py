@@ -30,5 +30,6 @@ class CouponSchedule(Base):
     coupon_date = Column(Date, nullable=True)
     value = Column(Float, nullable=True)
     valueprc = Column(Float, nullable=True)
+    currency = Column(String, nullable=True)
 
     bond = relationship("Bond", back_populates="coupons")

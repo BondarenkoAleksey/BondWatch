@@ -82,7 +82,8 @@ async def sync_moex_bond(isin: str, db: Session = Depends(get_db)):
             bond_id=c.bond_id,
             coupon_date=c.coupon_date,
             value=c.value,
-            valueprc=c.valueprc
+            valueprc=c.valueprc,
+            currency = c.currency
         ))
     db.commit()
     db.refresh(db_bond)  # Важно: подгружаем отношения
