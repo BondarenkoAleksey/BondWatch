@@ -7,8 +7,8 @@
 
 ## Roadmap
 - **Stage 1:** Basic FastAPI app with fake in-memory bonds (✅ done)
-- **Stage 2:** Add SQLAlchemy + Alembic migrations (🚧 in progress)
-- **Stage 3:** Integrate MOEX API
+- **Stage 2:** Add SQLAlchemy + Alembic migrations (✅ done)
+- **Stage 3:** Integrate MOEX API (🚧 in progress)
 - **Stage 4:** Celery + Redis for background tasks
 - **Stage 5:** Docker / docker-compose setup
 - **Stage 6:** Integrations (Telegram bot, T-Investments)

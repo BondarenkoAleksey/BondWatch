@@ -32,6 +32,7 @@ def upgrade() -> None:
     sa.Column('coupon_percent', sa.Float(), nullable=True),
     sa.Column('coupon_value', sa.Float(), nullable=True),
     sa.Column('coupon_date', sa.Date(), nullable=True),
+    sa.Column('yield_percent', sa.Float(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_bonds_id'), 'bonds', ['id'], unique=False)
