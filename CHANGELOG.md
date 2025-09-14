@@ -7,25 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
-- MOEX API integration (bonds quotes, parameters)
 - Background updates with Celery
 - Docker setup
 - Telegram notifications
 
 ---
 
+## [0.3.0] - 2025-09-14
+### Added
+- MOEX API integration:
+  - `GET /moex/bonds/{isin}` — get bond data from MOEX by ISIN
+  - `POST /moex/bonds/{isin}/sync` — sync bond and coupon schedule from MOEX to local DB
+  - `GET /moex/bonds/{isin}/coupons` — get coupons for a bond from MOEX
+- `/bonds/upcoming_coupons` endpoint — get bonds with upcoming coupons from local database
+- Swagger request body examples added for relevant POST/PATCH routes
+- Fixed `/bonds` endpoints for proper creation, patching, and validation
+
+---
+
 ## [0.2.0] - 2025-09-07
 ### Added
-- Project restructured into `app/` (routers, models, schemas, database, crud).
-- SQLAlchemy integration with SQLite.
-- Alembic initialized with first migration (`bonds` table).
-- CRUD operations for bonds via API.
+- Project restructured into `app/` (routers, models, schemas, database, crud)
+- SQLAlchemy integration with SQLite
+- Alembic initialized with first migration (`bonds` table)
+- CRUD operations for bonds via API
 
 ---
 
 ## [0.1.0] - 2025-09-06
 ### Added
-- Initial FastAPI app with in-memory storage.
+- Initial FastAPI app with in-memory storage
 - Endpoints:
   - `GET /bonds` — list of fake bonds
   - `POST /bonds` — add bond
