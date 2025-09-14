@@ -18,6 +18,7 @@ class Bond(Base):
     coupon_date = Column(Date, nullable=True)
     has_offer = Column(Boolean, nullable=True)
     offer_date = Column(Date, nullable=True)
+    yield_percent = Column(Float, nullable=True)
 
     coupons = relationship("CouponSchedule",
                            back_populates="bond",

@@ -5,18 +5,20 @@ from typing import List, Optional
 
 class BondCreate(BaseModel):
     isin: str
-    name: str
+    shortname: str
     yield_percent: float
 
 
 class BondUpdate(BaseModel):
-    name: Optional[str] = None
+    shortname: Optional[str] = None
     yield_percent: Optional[float] = None
+    has_offer: Optional[bool] = False
+    offer_date: Optional[date] = None
 
 
 class BondRead(BaseModel):
     isin: str
-    name: str
+    shortname: str
     yield_percent: float
     has_offer: Optional[bool] = False
     offer_date: Optional[date] = None

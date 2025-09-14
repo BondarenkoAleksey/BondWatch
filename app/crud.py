@@ -1,25 +1,25 @@
 from typing import Iterable, List, Union
 
 from sqlalchemy.orm import Session
-from app import models, schemas
+from app import schemas
 from app.models import CouponSchedule, Bond
-from app.schemas import MoexBond
+from app.schemas import BondCreate, BondUpdate, MoexBond
 
 
 def get_bond(db: Session, isin: str):
-    return db.query(models.Bond).filter(models.Bond.isin == isin).first()
+    return db.query(Bond).filter(Bond.isin == isin).first()
 
 def get_bonds(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Bond).offset(skip).limit(limit).all()
+    return db.query(Bond).offset(skip).limit(limit).all()
 
-def create_bond(db: Session, bond: schemas.BondCreate):
-    db_bond = models.Bond(isin=bond.isin, name=bond.name, yield_percent=bond.yield_percent)
+def create_bond(db: Session, bond: BondCreate):
+    db_bond = Bond(isin=bond.isin, shortname=bond.shortname, yield_percent=bond.yield_percent)
     db.add(db_bond)
     db.commit()
     db.refresh(db_bond)
     return db_bond
 
-def update_bond(db: Session, db_bond: models.Bond, bond_update: schemas.BondUpdate):
+def update_bond(db: Session, db_bond: Bond, bond_update: BondUpdate):
     update_data = bond_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_bond, key, value)
@@ -28,11 +28,11 @@ def update_bond(db: Session, db_bond: models.Bond, bond_update: schemas.BondUpda
     return db_bond
 
 def search_bonds(db: Session, min_yield=None, max_yield=None):
-    q = db.query(models.Bond)
+    q = db.query(Bond)
     if min_yield is not None:
-        q = q.filter(models.Bond.yield_percent >= min_yield)
+        q = q.filter(Bond.yield_percent >= min_yield)
     if max_yield is not None:
-        q = q.filter(models.Bond.yield_percent <= max_yield)
+        q = q.filter(Bond.yield_percent <= max_yield)
     return q.all()
 
 def upsert_bond(db: Session, bond_data: MoexBond) -> Bond:
