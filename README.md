@@ -54,6 +54,16 @@
 
 ---
 
+## Stage 4 — Фоновые задачи (Celery + Redis)
+
+На этом этапе добавлена интеграция с **Celery** для фонового обновления облигаций:
+
+- `sync_bond_task` — синхронизация конкретного бонда по ISIN.
+- `sync_all_bonds_task` — синхронизация всех бондов в базе.
+- Тестовая задача `test_task_sleep` — имитация долгой работы.
+
+---
+
 ## Запуск проекта
 
 ### Локально (dev)
@@ -69,3 +79,17 @@
 4. Документация доступна по адресу:
    ```bash
    http://127.0.0.1:8000/docs
+
+### Запуск Celery
+
+1. Запустить Redis (локально или в Docker):
+   ```bash
+   docker run -p 6379:6379 redis
+
+2. Запустить Celery worker:
+   ```bash
+   celery -A app.celery_tasks.celery_app.celery worker --loglevel=info
+
+3. (Опционально) Запустить Flower для мониторинга задач:
+   ```bash
+   celery -A app.celery_tasks.celery_app.celery flower --port=5555

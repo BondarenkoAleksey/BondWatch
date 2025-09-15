@@ -7,9 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
-- Background updates with Celery
 - Docker setup
 - Telegram notifications
+
+---
+
+## [0.4.0] - 2025-09-15
+### Added
+- **Celery + Redis** integration for background tasks:
+  - `sync_bond_task` — update a single bond by ISIN
+  - `sync_all_bonds_task` — update all bonds in DB
+  - test task `test_task_sleep` for simulating long-running jobs
+- New router `/tasks` to trigger background jobs via API
+- Celery worker & Flower launch instructions in README
 
 ---
 
