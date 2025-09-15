@@ -28,13 +28,7 @@ async def get_bond_info(isin: str) -> Optional[dict]:
     if not rows:
         return None
     bond_data = {row[0]: row[2] for row in rows}
-
-    # Добавляем поле оферты
-    # buyback_raw = bond_data.get("BUYBACKDATE")
-    # print(buyback_raw)
-    # bond_data["has_offer"] = bool(buyback_raw)
-    # bond_data["offer_date"] = datetime.strptime(buyback_raw, "%Y-%m-%d").date() if buyback_raw else None
-    print(bond_data)
+    # print(bond_data)
     return bond_data
 
 
