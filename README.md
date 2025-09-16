@@ -8,9 +8,9 @@
 ## Roadmap
 - **Stage 1:** Basic FastAPI app with fake in-memory bonds (✅ done)
 - **Stage 2:** Add SQLAlchemy + Alembic migrations (✅ done)
-- **Stage 3:** Integrate MOEX API (🚧 in progress)
-- **Stage 4:** Celery + Redis for background tasks
-- **Stage 5:** Docker / docker-compose setup
+- **Stage 3:** Integrate MOEX API (✅ done)
+- **Stage 4:** Celery + Redis for background tasks (✅ done)
+- **Stage 5:** Docker / docker-compose setup (✅ done)
 - **Stage 6:** Integrations (Telegram bot, T-Investments)
 - **Stage 7:** Advanced (auth, tests, logging, CI/CD)
 
@@ -64,6 +64,18 @@
 
 ---
 
+
+
+## Stage 5 — Docker / docker-compose setup
+
+Добавлены Dockerfile и docker-compose для разворачивания всего проекта:  
+- `api` — FastAPI-приложение  
+- `redis` — брокер для Celery  
+- `worker` — Celery worker  
+- `flower` — мониторинг задач
+
+---
+
 ## Запуск проекта
 
 ### Локально (dev)
@@ -93,3 +105,16 @@
 3. (Опционально) Запустить Flower для мониторинга задач:
    ```bash
    celery -A app.celery_tasks.celery_app.celery flower --port=5555
+
+### Запуск через Docker
+
+1. Собрать и запустить контейнеры:
+   ```bash
+   docker-compose up --build
+Приложение будет доступно:
+
+- API: http://127.0.0.1:8000/docs
+- Flower (мониторинг задач): http://127.0.0.1:5555
+
+Для обновления всех облигаций:
+- Вызвать ручку POST /tasks/sync_all в Swagger.

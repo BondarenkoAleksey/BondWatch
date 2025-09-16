@@ -7,8 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
-- Docker setup
 - Telegram notifications
+
+---
+
+## [0.5.0] - 2025-09-16
+### Added
+- Dockerfile для FastAPI-приложения
+- docker-compose с сервисами:
+  - `api` (FastAPI)
+  - `redis` (брокер Redis)
+  - `worker` (Celery worker)
+  - `flower` (мониторинг фоновых задач через Flower)
+- Инструкции в README по запуску проекта через Docker
 
 ---
 
