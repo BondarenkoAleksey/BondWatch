@@ -2,8 +2,10 @@ from celery import Celery
 
 celery = Celery(
     "bondwatch",
-    broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/1"
+    # broker="redis://localhost:6379/0",
+    # backend="redis://localhost:6379/1"
+    broker="redis://redis:6379/0",
+    backend="redis://redis:6379/1"
 )
 
 # celery.conf.task_routes = {"app.celery_tasks.tasks.*": {"queue": "default"}}
