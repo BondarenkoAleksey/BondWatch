@@ -64,8 +64,6 @@
 
 ---
 
-
-
 ## Stage 5 — Docker / docker-compose setup
 
 Добавлены Dockerfile и docker-compose для разворачивания всего проекта:  
@@ -73,6 +71,17 @@
 - `redis` — брокер для Celery  
 - `worker` — Celery worker  
 - `flower` — мониторинг задач
+
+---
+
+## Stage 6 - Telegram-бот
+
+- BondWatch теперь включает Telegram-бота для запуска задач синхронизации.
+
+### Доступные команды
+- `/start` — показать справку
+- `/sync_all` — синхронизировать все облигации
+- `/bond <ISIN>` — синхронизировать конкретную облигацию
 
 ---
 
@@ -118,3 +127,13 @@
 
 Для обновления всех облигаций:
 - Вызвать ручку POST /tasks/sync_all в Swagger.
+
+
+### Запуск в Docker
+
+1. Добавить токен бота в файл `.env`:
+TELEGRAM_TOKEN=ваш_токен
+2. Запустить сервисы:
+   ```bash
+   docker-compose up --build
+Бот будет работать как отдельный сервис внутри Docker.
