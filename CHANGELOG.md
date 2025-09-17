@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
-- Telegram notifications
+## [0.6.0] - 2025-09-17
+### Added
+- Telegram bot integration with /start, /sync_all, /bond commands
+- Docker service for the bot
+- Environment variable TELEGRAM_TOKEN support
 
 ---
 
