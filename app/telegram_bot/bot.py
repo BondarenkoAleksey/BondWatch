@@ -13,6 +13,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from app.celery_tasks.tasks import sync_all_bonds_task, sync_bond_task
 from app.t_investicii.portfolio import get_portfolio_info
 
+
 logging.basicConfig(level=logging.INFO)
 
 # Берём токен из переменных окружения
