@@ -11,6 +11,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from app.celery_tasks.tasks import sync_all_bonds_task, sync_bond_task
+from app.t_investicii.portfolio import get_portfolio_info
 
 logging.basicConfig(level=logging.INFO)
 
@@ -33,7 +34,8 @@ async def cmd_start(message: types.Message):
         "👋 Привет! Я BondWatch Bot.\n"
         "Доступные команды:\n"
         "/sync_all — синхронизировать все облигации\n"
-        "/bond — синхронизировать конкретный бонд"
+        "/bond — синхронизировать конкретный бонд\n"
+        "/portfolio —  получить информацию о портфеле в Т-инвестициях"
     )
 
 
@@ -55,6 +57,26 @@ async def process_isin(message: types.Message, state: FSMContext):
     sync_bond_task.delay(isin)
     await message.answer(f"🔄 Запущена синхронизация для {isin}")
     await state.clear()
+
+
+@dp.message(Command("portfolio"))
+async def cmd_portfolio(message: types.Message):
+    try:
+        portfolio = get_portfolio_info()
+        if not portfolio:
+            await message.answer("📭 У вас нет доступных счетов.")
+            return
+
+        text = "💼 Ваш портфель:\n\n"
+        for acc in portfolio:
+            text += f"📌 Счет: {acc['account_name']} ({acc['account_id']})\n"
+            for pos in acc['positions']:
+                text += f"— {pos['figi']}: {pos['quantity']} шт.\n"
+            text += "\n"
+
+        await message.answer(text)
+    except Exception as e:
+        await message.answer(f"⚠️ Ошибка: {e}")
 
 
 async def main():

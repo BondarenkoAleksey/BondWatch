@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.1] — 2025-09-18
+### Added
+- Integration with Tinkoff Invest API:
+  - Fetching user accounts list.
+  - Displaying portfolio (via API and Telegram bot).
+- New Telegram bot command `/portfolio`.
+- Support for environment variable `TINKOFF_INVEST_TOKEN`.
+
+---
+
 ## [0.6.0] - 2025-09-17
 ### Added
 - Telegram bot integration with /start, /sync_all, /bond commands
