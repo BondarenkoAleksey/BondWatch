@@ -29,6 +29,7 @@ def create_bond(bond: schemas.BondCreate=Body(
             "yield_percent": 14.75
         }
     ), db: Session = Depends(get_db)):
+    """Создать облигацию в БД."""
     if crud.get_bond(db, bond.isin):
         raise HTTPException(status_code=400, detail="Bond already exists")
     return crud.create_bond(db, bond)
@@ -36,6 +37,7 @@ def create_bond(bond: schemas.BondCreate=Body(
 
 @router.get("/", response_model=list[schemas.BondRead])
 def read_bonds(min_yield: float | None = None, max_yield: float | None = None, db: Session = Depends(get_db)):
+    """Фильтр облигаций в БД по доходности."""
     if min_yield is not None or max_yield is not None:
         return crud.search_bonds(db, min_yield, max_yield)
     return crud.get_bonds(db)
@@ -43,6 +45,7 @@ def read_bonds(min_yield: float | None = None, max_yield: float | None = None, d
 
 @router.get("/upcoming_coupons", response_model=list[BondWithCoupons])
 def get_bonds_with_upcoming_coupons(db: Session = Depends(get_db)):
+    """Получение из БД списка купонов."""
     today = date.today()
 
     # фильтрация по месяцам: текущий или следующий
@@ -106,6 +109,7 @@ def get_bonds_with_upcoming_coupons(db: Session = Depends(get_db)):
 
 @router.get("/{isin}", response_model=schemas.BondRead)
 def read_bond(isin: str, db: Session = Depends(get_db)):
+    """Получение информации об облигации."""
     db_bond = crud.get_bond(db, isin)
     if not db_bond:
         raise HTTPException(status_code=404, detail="Bond not found")
@@ -126,6 +130,7 @@ def patch_bond(
     ),
     db: Session = Depends(get_db)
 ):
+    """Изменение параметров облигации."""
     db_bond = crud.get_bond(db, isin)
     if not db_bond:
         raise HTTPException(status_code=404, detail="Bond not found")

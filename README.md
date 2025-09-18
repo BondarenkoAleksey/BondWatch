@@ -11,8 +11,8 @@
 - **Stage 3:** Integrate MOEX API (✅ done)
 - **Stage 4:** Celery + Redis for background tasks (✅ done)
 - **Stage 5:** Docker / docker-compose setup (✅ done)
-- **Stage 6:** Integrations (Telegram bot, T-Investments)
-- **Stage 7:** Advanced (auth, tests, logging, CI/CD)
+- **Stage 6:** Integrations (Telegram bot, T-Investments) (✅ done)
+- **Stage 7:** Advanced (minimal tests + base logging)
 
 ---
 
@@ -83,6 +83,12 @@
 - `/sync_all` — синхронизировать все облигации
 - `/bond <ISIN>` — синхронизировать конкретную облигацию
 
+### Интеграция с Тинькофф Инвестициями
+Реализовано подключение к Tinkoff Invest API:
+- Получение списка счетов пользователя.
+- Просмотр содержимого портфеля (FIGI + количество инструментов).
+- Интеграция доступна через API (`/portfolio`) и бота (`/portfolio`).
+
 ---
 
 ## Запуск проекта
@@ -137,3 +143,11 @@ TELEGRAM_TOKEN=ваш_токен
    ```bash
    docker-compose up --build
 Бот будет работать как отдельный сервис внутри Docker.
+
+### Переменные окружения (.env)
+
+Необходимые переменные:
+```env
+REDIS_HOST=redis
+TELEGRAM_TOKEN=ваш_токен_бота
+TINKOFF_INVEST_TOKEN=ваш_api_токен_тинькофф

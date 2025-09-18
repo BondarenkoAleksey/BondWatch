@@ -17,9 +17,9 @@ router = APIRouter(prefix="/moex", tags=["MOEX"])
 async def get_moex_bond(isin: str):
 
     """
-    Fetch bond information from MOEX by ISIN.
+    Получение инфо об облигации из MOEX по ISIN.
 
-    Returns basic bond fields:
+    Возвращаются следующие поля:
     - isin
     - secid
     - shortname
@@ -30,7 +30,7 @@ async def get_moex_bond(isin: str):
     - coupon_value
     - coupon_date
 
-    If bond is not found on MOEX, returns 404 Not Found.
+    Возвращает 404 при отсутствии облигации в MOEX.
     """
 
     data = await get_bond_info(isin)
@@ -53,7 +53,7 @@ async def get_moex_bond(isin: str):
 @router.post("/bonds/{isin}/sync", response_model=BondWithCoupons)
 async def sync_moex_bond(isin: str, db: Session = Depends(get_db)):
     """
-    Sync bond and coupon schedule from MOEX into local database.
+    Синхронизация облигаций и купонов из MOEX в БД.
     """
     data = await get_bond_info(isin)
     if not data:
@@ -97,7 +97,7 @@ async def sync_moex_bond(isin: str, db: Session = Depends(get_db)):
 @router.get("/bonds/{isin}/coupons", response_model=List[Coupon])
 async def get_bond_coupons(isin: str, db: Session = Depends(get_db)):
     """
-    Get coupons for a bond by ISIN from the local database.
+    Получение купонов из БД.
     """
     db_bond = crud.get_bond(db, isin)
     if not db_bond:
