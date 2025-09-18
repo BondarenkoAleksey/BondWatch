@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] — 2025-09-18
+### Added
+- Celery task tests using in-memory SQLite.
+- Minimal logging for Telegram bot and Celery tasks.
+
+---
+
 ## [0.6.1] — 2025-09-18
 ### Added
 - Integration with Tinkoff Invest API:

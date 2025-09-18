@@ -1,11 +1,10 @@
-# tasks.py
-import logging
 import asyncio
+import logging
 
 from app.celery_tasks.celery_app import celery
-from app.routers.moex import sync_moex_bond
 from app.database import SessionLocal
 from app.models import Bond
+from app.routers.moex import sync_moex_bond
 
 logger = logging.getLogger(__name__)
 
