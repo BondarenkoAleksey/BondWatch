@@ -1,9 +1,6 @@
 import asyncio
-import logging
 import os
 
-from aiogram import F
-from aiogram.filters import CommandObject
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -11,12 +8,12 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from app.celery_tasks.tasks import sync_all_bonds_task, sync_bond_task
+from app.core.logging_config import setup_logging
 from app.t_investicii.portfolio import get_portfolio_info
 
 
-logging.basicConfig(level=logging.INFO)
+setup_logging()
 
-# Берём токен из переменных окружения
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 if not TELEGRAM_TOKEN:
     raise RuntimeError("Не найден TELEGRAM_TOKEN в переменных окружения")
